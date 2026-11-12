@@ -11,10 +11,9 @@ calculate_age <- function(from, to) {
          age - 1, age)
 }
 
+# Preprocessing
 
-# Preprocessing -------------------------------------------------------------------------------------
-
-## pt ---------------------------------------------------------------------------------------------------
+# 환자 정보
 
 patient_column_names <- colnames(patient_raw_df)
 colnames(patient_raw_df) <- sub("\\#.*", "", patient_column_names)
@@ -25,8 +24,7 @@ patients_df <- patient_raw_df %>%
          sex = "성별") %>%
   mutate(birth_date = paste(birth_date, "-1", sep = "") %>% ymd)
 
-
-## Surgery-----------------------------------------------------------------------------------------------
+# 수술 정보
 
 standardized_surgeries_df <- surgery_raw_df %>%
          rename(pt_id = "환자번호.1",
@@ -68,7 +66,7 @@ standardized_surgeries_df <- joined_surgeries_df %>%
   mutate(birth_date = as.POSIXct(paste(joined_surgeries_df$birth_date, "-01", sep = ""), format = "%Y-%m-%d")) %>%
   filter(incision_dt > ymd_hms("2019-01-01 00:00:00") & incision_dt <= ymd_hms("2023-12-31 23:59:59"))
 
-## Transfusion------------------------------------------------------------------------------------------------
+# 수혈 처방
 
 transfusion_orders_df <- transfusion_raw_df %>%
   rename(pt_id = "환자번호.1",
@@ -100,7 +98,7 @@ transfusion_orders_df <- transfusion_raw_df %>%
             funs(factor)) %>%
   mutate_at(vars(tidyr::ends_with("_quan")),
             funs(as.numeric))
-## Lab----------------------------------------------------------------------------------------------------------
+# 검사 결과
 
 laboratory_raw_df %>% colnames()
 
@@ -117,17 +115,12 @@ laboratory_results_df <- laboratory_raw_df %>%
             funs(factor(.))) %>%
   filter(receive_dt > lubridate::ymd_hms("2018-11-30 23:59:59")) # 19년 1월 1일 수술한 환자의 1달 전 데이터까지 커버 위함
 
-# Lab code별로 unit은 1개씩임# laboratory_results_df %>%
-
-#   gcd, unit_nm) %>%
-#   tally()
-
-## Dx---------------------------------------------------------------------------------------------------------
+# 진단 기록
 head(diagnosis_raw_df)
 colnames(diagnosis_raw_df)[1] <- "환자번호#1"
 
 diagnoses_df <- diagnosis_raw_df %>%
-  #dplyr::select(-"var#2") %>%
+
   rename(pt_id = "환자번호#1",
          visit_dt = "진료일시#4",
          dx_cd = "상병코드#5",
@@ -136,8 +129,7 @@ diagnoses_df <- diagnosis_raw_df %>%
             list(~factor(.))) %>%
               mutate(dx_cd = str_sub(dx_cd, 1, 5))
 
-## Med----------------------------------------------------------------------------------------------------------
-
+# 항응고제 분류
 
 coumarin_deriatives = c("TJIWARF", "TWAR-C", "TWAR05", "TWAR1", "TWAR2", "TWAR5", "TWARF2", "TWARF5", "TWARFA", "TWARFA1", "TWARFA5", "TWRF1", "TWRF5", "WARF", "WARF5")
 direct_thrombin_inhibitors = c("DABI11", "DABI15", "TDABI11", "TDABI15", "XARGAT", "XLEPIR")
@@ -169,11 +161,6 @@ medications_df <- medication_raw_df %>%
             funs(factor(.))) %>%
   dplyr::select(pt_id, med_cat, acting_time)
 
+# 수술코드 사전
 
-# ICD9cm ------------------------------------------------------------------
-
-# procedure_dictionary_df <- procedure_dictionary_df %>%
-#   rename(procedure_cd = `PROCEDURE CODE`,
-#          long_description = `LONG DESCRIPTION`,
-#          short_description = `SHORT DESCRIPTION`) %>%
-#   mutate(procedure_cd = factor(procedure_cd))
+# rename(procedure_cd = `PROCEDURE CODE`,

@@ -1,4 +1,4 @@
-# 프로젝트 경로와 공통 패키지
+# 공통 경로와 패키지
 .source_files <- Filter(Negate(is.null), lapply(sys.frames(), function(frame) frame$ofile))
 if (length(.source_files) == 0L) stop("source()로 설정 파일을 실행하세요.")
 PROJECT_ROOT <- dirname(dirname(normalizePath(tail(.source_files, 1L)[[1L]], winslash = "/")))
