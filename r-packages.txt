@@ -8,3 +8,4 @@ writexl
 comorbidity
 moonBook
 skimr
+ggplot2
